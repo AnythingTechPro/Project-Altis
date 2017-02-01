@@ -3,7 +3,7 @@ window-title Project Altis [ALPHA]
 win-origin -2 -2
 icon-filename phase_3/etc/icon.ico
 cursor-filename phase_3/etc/toonmono.cur
-show-frame-rate-meter #t
+show-frame-rate-meter #f
 
 # Debug
 default-directnotify-level info
@@ -80,9 +80,12 @@ want-goofy-speedway #t
 want-outdoor-zone #t
 want-golf-zone #t
 
+# Weather system
+want-weather #f
+
 # Options Page
 change-display-settings #t
-change-display-api #t
+change-display-api #f
 
 # Safe zone settings:
 want-treasure-planners #t
@@ -129,6 +132,8 @@ want-cogbuildings #t
 show-total-population #f
 want-mat-all-tailors #t
 want-long-pattern-game #f
+show-population #t
+show-total-population #t
 
 # Animated Props
 zero-pause-mult 1.0
@@ -138,6 +143,7 @@ randomize-interactive-idles #t
 interactive-prop-random-idles #t
 interactive-prop-info #f
 props-buff-battles #t
+prop-and-organic-bonus-stack #f
 prop-idle-pause-time 0.0
 
 # Events
@@ -150,7 +156,7 @@ want-directtools #f
 want-tk #f
 
 # Holidays
-active-holidays 64, 65, 66 #128, 116, 63
+active-holidays 63, 64, 65, 66 #128, 116
 
 # Temporary:
 want-old-fireworks #t

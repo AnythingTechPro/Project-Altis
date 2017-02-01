@@ -153,6 +153,7 @@ class ToonAvatarDetailPanel(DirectFrame):
     def __showData(self):
         av = self.avatar
         online = 1
+        toonId = ("TTPA-U-"+ str(self.avId - 100000000))
         if base.cr.isFriend(self.avId):
             online = base.cr.isFriendOnline(self.avId)
         if online:
@@ -170,9 +171,10 @@ class ToonAvatarDetailPanel(DirectFrame):
             else:
                 text = TTLocalizer.AvatarDetailPanelOnline % {'district': shardName,
                  'location': hoodName,
-                 'level': (av.level + 1)}
+                 'level': (av.level + 1),
+                 'toonId': toonId}
         else:
-            text = TTLocalizer.AvatarDetailPanelOffline % str(av.level + 1)
+            text = TTLocalizer.AvatarDetailPanelOffline % (str(av.level + 1), toonId)
 
         self.dataText['text'] = text
         self.__updateTrackInfo()
@@ -197,13 +199,13 @@ class ToonAvatarDetailPanel(DirectFrame):
     def __updateTrackInfo(self):
         xOffset = -0.501814
         xSpacing = 0.1835
-        yOffset = 0.1
+        yOffset = 0.215
         ySpacing = -0.115
         inventory = self.avatar.inventory
         inventoryModels = loader.loadModel('phase_3.5/models/gui/inventory_gui')
         buttonModel = inventoryModels.find('**/InventoryButtonUp')
         for track in xrange(0, len(Tracks)):
-            DirectLabel(parent=self, relief=None, text=TextEncoder.upper(TTLocalizer.BattleGlobalTracks[track]), text_scale=TTLocalizer.TADPtrackLabel, text_align=TextNode.ALeft, pos=(-0.9, 0, TTLocalizer.TADtrackLabelPosZ + track * ySpacing))
+            DirectLabel(parent=self, relief=None, text=TextEncoder.upper(TTLocalizer.BattleGlobalTracks[track]), text_scale=TTLocalizer.TADPtrackLabel, text_align=TextNode.ALeft, pos=(-0.9, 0, .1 + TTLocalizer.TADtrackLabelPosZ + track * ySpacing))
             if self.avatar.hasTrackAccess(track):
                 curExp, nextExp = inventory.getCurAndNextExpValues(track)
                 for item in xrange(0, len(Levels[track])):

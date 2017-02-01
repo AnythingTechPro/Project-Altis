@@ -7,7 +7,7 @@ from toontown.toon import ToonDNA
 from direct.actor import Actor
 from direct.directnotify import DirectNotifyGlobal
 from direct.interval.IntervalGlobal import *
-from direct.showbase.PythonUtil import Functor
+from toontown.toonbase.ToonPythonUtil import Functor
 from direct.task.Task import Task
 from pandac.PandaModules import *
 from toontown.toon.ToonHead import *
@@ -461,6 +461,9 @@ class Toon(Avatar.Avatar, ToonHead):
         self.cogHead = 0
         self.cogLevels = [] 
         self.uberType = 0
+        self.startingPg = 0
+        self.choiceAlpha = 2
+        self.choiceBeta = 3
         self.defaultColorScale = None
         self.jar = None
         self.setBlend(frameBlend = True)
@@ -2238,7 +2241,8 @@ class Toon(Avatar.Avatar, ToonHead):
                 self.effectTrack = self.__undoCheesyEffect(oldEffect, lerpTime)
             else:
                 self.effectTrack = Sequence(self.__undoCheesyEffect(oldEffect, lerpTime / 2.0), self.__doCheesyEffect(effect, lerpTime / 2.0))
-            self.effectTrack.start()
+            if self.effectTrack:
+                self.effectTrack.start()
 
     def reapplyCheesyEffect(self, lerpTime = 0):
         if self.effectTrack != None:
@@ -2257,7 +2261,11 @@ class Toon(Avatar.Avatar, ToonHead):
     def __doHeadScale(self, scale, lerpTime):
         if scale == None:
             scale = ToontownGlobals.toonHeadScales[self.style.getAnimal()]
+        
         track = Parallel()
+        if not self.headParts:
+            return track
+        
         for hi in xrange(self.headParts.getNumPaths()):
             head = self.headParts[hi]
             track.append(LerpScaleInterval(head, lerpTime, scale, blendType='easeInOut'))
@@ -2282,6 +2290,9 @@ class Toon(Avatar.Avatar, ToonHead):
     def __doToonScale(self, scale, lerpTime):
         if scale == None:
             scale = 1
+        if not self.getGeomNode():
+            self.notify.warning("A error has occured when attempting to scale Toon!")
+            return
         node = self.getGeomNode().getChild(0)
         track = Sequence(Parallel(LerpHprInterval(node, lerpTime, Vec3(0.0, 0.0, 0.0), blendType='easeInOut'), LerpScaleInterval(node, lerpTime, scale, blendType='easeInOut')), Func(self.resetHeight))
         return track
@@ -2359,6 +2370,18 @@ class Toon(Avatar.Avatar, ToonHead):
             track.append(Func(showHiddenParts))
             track.append(Func(self.enablePumpkins, False))
             track.append(Func(self.startBlink))
+        return track
+		
+    def __doWireFrame(self):
+        node = self.getGeomNode()
+        track = Sequence()
+        track.append(Func(node.setRenderModeWireframe))
+        return track
+		
+    def __doUnWireFrame(self):
+        node = self.getGeomNode()
+        track = Sequence()
+        track.append(Func(node.setRenderModeFilled))
         return track
 
     def __doSnowManHeadSwitch(self, lerpTime, toSnowMan):
@@ -4772,6 +4795,8 @@ class Toon(Avatar.Avatar, ToonHead):
             if base.localAvatar.getAdminAccess() < self.adminAccess:
                 alpha = 0
             return Sequence(self.__doToonGhostColorScale(VBase4(1, 1, 1, alpha), lerpTime, keepDefault=1), Func(self.nametag3d.hide))
+        elif effect == ToontownGlobals.CEWire:
+            return self.__doWireFrame()
         return Sequence()
 
     def __undoCheesyEffect(self, effect, lerpTime):
@@ -4931,6 +4956,8 @@ class Toon(Avatar.Avatar, ToonHead):
             return self.__doUnVirtual()
         elif effect == ToontownGlobals.CEGhost:
             return Sequence(Func(self.nametag3d.show), self.__doToonGhostColorScale(None, lerpTime, keepDefault=1))
+        elif effect == ToontownGlobals.CEWire:
+            return self.__doUnWireFrame()
         return Sequence()
 
             
